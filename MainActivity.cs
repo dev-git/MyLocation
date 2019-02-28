@@ -381,8 +381,11 @@ namespace MyLocation
             using (var client = new HttpClient())
             {
                 // var content = new FormUrlEncodedContent(values);
+                var jsonText = "{ \"macAddress\" : \"" +  macAddress + "\", "latitude" : "-36.92577745", "longitude" : "174.63647775" , "batteryLevel" : "45" }"
                 var content = new StringContent(macAddress);
-                var url = String.Format("http://ibrium.webhop.me/plog/api/pLog/{0}/{1}/{2}/{3}", macAddress, latitude, longitude, batteryLevel);
+                //body: JSON.stringify('{ "macAddress" : "C0-11-73-6C-70-27", "latitude" : "-36.92577745", "longitude" : "174.63647775" , "batteryLevel" : "45" }')
+                //  headers:{'Content-Type': 'application/json' }
+                var url = String.Format("http://ibrium.33713/api/log");
 
                 var response = await client.PostAsync(url, content);
 
