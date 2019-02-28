@@ -380,6 +380,19 @@ namespace MyLocation
 
             using (var client = new HttpClient())
             {
+            /*
+            // Build the JSON object to pass parameters
+JSONObject jsonObj = new JSONObject();
+jsonObj.put("username", username);
+jsonObj.put("apikey", apikey);
+// Create the POST object and add the parameters
+HttpPost httpPost = new HttpPost(url);
+StringEntity entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
+entity.setContentType("application/json");
+httpPost.setEntity(entity);
+HttpClient client = new DefaultHttpClient();
+HttpResponse response = client.execute(httpPost)
+*/
                 // var content = new FormUrlEncodedContent(values);
                 var jsonText = "{ \"macAddress\" : \"" +  macAddress + "\", "latitude" : "-36.92577745", "longitude" : "174.63647775" , "batteryLevel" : "45" }"
                 var content = new StringContent(macAddress);
