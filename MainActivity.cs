@@ -19,6 +19,10 @@ using Android.Widget;
 using Java.Util;
 using Java.Net;
 using System.Text;
+using Org.Json;
+using Org.Apache.Http.Entity;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace MyLocation
 {
@@ -186,6 +190,7 @@ namespace MyLocation
 
             var location = await fusedLocationProviderClient.GetLastLocationAsync();
 
+     
             // Get the MAC Address
             String macAddress = GetMACAddress2();
             if (macAddress.Length > 17)
@@ -198,8 +203,17 @@ namespace MyLocation
             int batteryLevel = GetBatteryLevel();
             batteryLevelText.Text = batteryLevel.ToString();
 
-            // Post the data
-            PostData(macAddress.Replace(':', '-'), location.Latitude, location.Longitude, batteryLevel);
+            if (location is null)
+            {            // Post the data
+                PostData(macAddress.Replace(':', '-'), -36.00000, 174.000000, batteryLevel);
+
+            }
+            else
+            {
+                // Post the data
+                PostData(macAddress.Replace(':', '-'), location.Latitude, location.Longitude, batteryLevel);
+            }
+
 
         }
 
@@ -233,7 +247,7 @@ namespace MyLocation
                                    {
                                        ActivityCompat.RequestPermissions(this, new[] { Manifest.Permission.AccessFineLocation }, requestCode);
                                    })
-                        .Show();
+                        .Show(); 
             }
             else
             {
@@ -375,34 +389,26 @@ namespace MyLocation
 
         private async void PostData(string macAddress, double latitude, double longitude, int batteryLevel)
         {
-            // url: 'http://ibrium.webhop.me/plog/api/pLog/D2-A0-F1-00/-3.1254/0.34534/25'
             // http://maps.google.co.nz/maps?q=-36.85538833,174.77183783
 
             using (var client = new HttpClient())
             {
-            /*
-            // Build the JSON object to pass parameters
-JSONObject jsonObj = new JSONObject();
-jsonObj.put("username", username);
-jsonObj.put("apikey", apikey);
-// Create the POST object and add the parameters
-HttpPost httpPost = new HttpPost(url);
-StringEntity entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
-entity.setContentType("application/json");
-httpPost.setEntity(entity);
-HttpClient client = new DefaultHttpClient();
-HttpResponse response = client.execute(httpPost)
-*/
-                // var content = new FormUrlEncodedContent(values);
-                var jsonText = "{ \"macAddress\" : \"" +  macAddress + "\", "latitude" : "-36.92577745", "longitude" : "174.63647775" , "batteryLevel" : "45" }"
-                var content = new StringContent(macAddress);
-                //body: JSON.stringify('{ "macAddress" : "C0-11-73-6C-70-27", "latitude" : "-36.92577745", "longitude" : "174.63647775" , "batteryLevel" : "45" }')
-                //  headers:{'Content-Type': 'application/json' }
-                var url = String.Format("http://ibrium.33713/api/log");
+                var url = "http://ibrium.net:33713/api/log";
 
-                var response = await client.PostAsync(url, content);
+                var myContent = "{\"Latitude\":" + latitude.ToString() + ",\"Longitude\":" + longitude.ToString() + ",\"BatteryLevel\":" + batteryLevel.ToString() + ",\"MACAddress\":\"" + macAddress + "\"}";
+                var stringContent = new StringContent(JsonConvert.SerializeObject(myContent), UnicodeEncoding.UTF8, "application/json");
 
-                var responseString = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    var response = await client.PostAsync(url, stringContent);
+
+                    var responseString = await response.Content.ReadAsStringAsync();
+                    //Console.WriteLine(responseString);
+                }
+                catch (Exception ex)
+                {
+                    
+                }
             }
         }
     }
